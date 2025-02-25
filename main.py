@@ -8,6 +8,23 @@ def calcular_variacao_percentual(preco_antigo, preco_novo):
         return 0
     return ((preco_novo - preco_antigo) / preco_antigo) * 100
 
+def calcular_boost(precos_anteriores, precos_novos):
+    maior_subida = {"ticker": None, "variacao": -float('inf'), "preco": 0}
+    maior_baixa = {"ticker": None, "variacao": float('inf'), "preco": 0}
+    
+    for crypto in precos_novos:
+        preco_antigo, _ = precos_anteriores[crypto]
+        preco_novo, _ = precos_novos[crypto]
+        variacao_preco = calcular_variacao_percentual(preco_antigo, preco_novo)
+        
+        if variacao_preco > maior_subida["variacao"]:
+            maior_subida = {"ticker": crypto, "variacao": variacao_preco, "preco": preco_novo}
+        
+        if variacao_preco < maior_baixa["variacao"]:
+            maior_baixa = {"ticker": crypto, "variacao": variacao_preco, "preco": preco_novo}
+    
+    return maior_subida, maior_baixa
+
 # Definir los tickers de las criptomonedas
 cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD']
 
@@ -40,6 +57,7 @@ def main(stdscr):
         while True:
             # Obtener nuevos precios
             precos_novos = {crypto: obter_dados(crypto) for crypto in cryptos}
+            boost_up, boost_down = calcular_boost(precos_anteriores, precos_novos)
             stdscr.clear()
             for i, crypto in enumerate(cryptos):
                 preco_inicial, volume_inicial = precos_iniciais[crypto]
@@ -58,6 +76,13 @@ def main(stdscr):
                     pass  # Ignorar errores causados por escribir fuera de la ventana
 
                 linha += 6
+
+            # Mostrar BoostUP y BoostDOWN
+            try:
+                stdscr.addstr(linha, 0, f'BoostUP: {boost_up["ticker"]} {boost_up["preco"]:.2f} ({boost_up["variacao"]:+.2f}%)', curses.color_pair(3))
+                stdscr.addstr(linha + 1, 0, f'BoostDOWN: {boost_down["ticker"]} {boost_down["preco"]:.2f} ({boost_down["variacao"]:+.2f}%)', curses.color_pair(2))
+            except curses.error:
+                pass  # Ignorar errores causados por escribir fuera de la ventana
 
             stdscr.refresh()
             precos_anteriores = precos_novos
