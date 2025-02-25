@@ -3,19 +3,21 @@ from tradingview_ta import TA_Handler, Interval
 import time
 
 def calcular_variacao_percentual(preco_antigo, preco_novo):
+    # Calcula la variación porcentual entre dos precios
     if preco_antigo == 0:
         return 0
     return ((preco_novo - preco_antigo) / preco_antigo) * 100
 
-# Defina os tickers das criptos
+# Definir los tickers de las criptomonedas
 cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD']
 
 def obter_dados(crypto):
+    # Obtiene los datos de cierre y volumen de una criptomoneda
     handler = TA_Handler(
         symbol=crypto,
         exchange="BINANCE",
         screener="crypto",
-        interval=Interval.INTERVAL_1_MINUTE
+        interval=Interval.INTERVAL_1_MINUTE   # Opciones posibles: INTERVAL_1_MINUTE, INTERVAL_5_MINUTES, INTERVAL_15_MINUTES, INTERVAL_30_MINUTES, INTERVAL_1_HOUR, INTERVAL_4_HOURS, INTERVAL_1_DAY, INTERVAL_1_WEEK, INTERVAL_1_MONTH
     )
     analysis = handler.get_analysis().indicators
     return analysis['close'], analysis['volume']
@@ -27,14 +29,16 @@ def main(stdscr):
         curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)
         curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_GREEN)
 
+        # Obtener precios iniciales
         precos_iniciais = {crypto: obter_dados(crypto) for crypto in cryptos}
         precos_anteriores = precos_iniciais.copy()
-        curses.curs_set(0)  # Esconder el cursor
+        curses.curs_set(0)  # Ocultar el cursor
         stdscr.nodelay(1)  # No bloquear en getch()
         stdscr.timeout(60000)  # Actualizar cada 60000 ms (1 MINUTO = 60000 ms)
 
         linha = 0
         while True:
+            # Obtener nuevos precios
             precos_novos = {crypto: obter_dados(crypto) for crypto in cryptos}
             stdscr.clear()
             for i, crypto in enumerate(cryptos):
@@ -46,12 +50,12 @@ def main(stdscr):
 
                 try:
                     stdscr.addstr(linha, 0, f'{crypto}:', curses.color_pair(1))
-                    stdscr.addstr(linha + 1, 0, f'  Preço Inicial: {preco_inicial:.2f}', curses.color_pair(2))
-                    stdscr.addstr(linha + 2, 0, f'  Preço Atual: {preco_novo:.2f}', curses.color_pair(2))
-                    stdscr.addstr(linha + 3, 0, f'  Variação Preço: {variacao_preco:.2f}%', curses.color_pair(3))
-                    stdscr.addstr(linha + 4, 0, f'  Variação Volume: {variacao_volume:.2f}%', curses.color_pair(3))
+                    stdscr.addstr(linha + 1, 0, f'  Precio Inicial: {preco_inicial:.2f}', curses.color_pair(2))
+                    stdscr.addstr(linha + 2, 0, f'  Precio Actual: {preco_novo:.2f}', curses.color_pair(2))
+                    stdscr.addstr(linha + 3, 0, f'  Variación Precio: {variacao_preco:.2f}%', curses.color_pair(3))
+                    stdscr.addstr(linha + 4, 0, f'  Variación Volumen: {variacao_volume:.2f}%', curses.color_pair(3))
                 except curses.error:
-                    pass  # Ignore errors caused by writing outside the window
+                    pass  # Ignorar errores causados por escribir fuera de la ventana
 
                 linha += 6
 
