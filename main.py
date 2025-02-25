@@ -8,7 +8,7 @@ def calcular_variacao_percentual(preco_antigo, preco_novo):
     return ((preco_novo - preco_antigo) / preco_antigo) * 100
 
 # Defina os tickers das criptos
-cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD']
+cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD']
 
 def obter_dados(crypto):
     handler = TA_Handler(
@@ -31,7 +31,7 @@ def main(stdscr):
         precos_anteriores = precos_iniciais.copy()
         curses.curs_set(0)  # Esconder el cursor
         stdscr.nodelay(1)  # No bloquear en getch()
-        stdscr.timeout(30000)  # Actualizar cada 30000 ms (30 segundos)
+        stdscr.timeout(60000)  # Actualizar cada 60000 ms (1 MINUTO = 60000 ms)
 
         linha = 0
         while True:
