@@ -8,11 +8,21 @@ def calcular_variacao_percentual(preco_antigo, preco_novo):
         return 0
     return ((preco_novo - preco_antigo) / preco_antigo) * 100
 
+# Definir los tickers de las criptomonedas
+cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD']
+
+# Definir los tickers de las criptomonedas a excluir de BoostUP y BoostDOWN
+# Ejemplo: excepciones = ['BTCUSD', 'ETHUSD']
+excepciones = ['BTCUSD', 'ETHUSD', 'SOLUSD']
+
 def calcular_boost(precos_anteriores, precos_novos):
     maior_subida = {"ticker": None, "variacao": -float('inf'), "preco": 0}
     maior_baixa = {"ticker": None, "variacao": float('inf'), "preco": 0}
     
     for crypto in precos_novos:
+        if crypto in excepciones:
+            continue  # Saltar los tickers en la lista de excepciones
+        
         preco_antigo, _ = precos_anteriores[crypto]
         preco_novo, _ = precos_novos[crypto]
         variacao_preco = calcular_variacao_percentual(preco_antigo, preco_novo)
@@ -24,9 +34,6 @@ def calcular_boost(precos_anteriores, precos_novos):
             maior_baixa = {"ticker": crypto, "variacao": variacao_preco, "preco": preco_novo}
     
     return maior_subida, maior_baixa
-
-# Definir los tickers de las criptomonedas
-cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD']
 
 def obter_dados(crypto):
     # Obtiene los datos de cierre y volumen de una criptomoneda
