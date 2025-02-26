@@ -17,12 +17,13 @@ cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD', 'XLMUSD', 'TRXUSD',
 
 # Definir los tickers de las criptomonedas a excluir de BoostUP y BoostDOWN
 # Ejemplo: excepciones = ['BTCUSD', 'ETHUSD']
-excepciones = ['BTCUSD', 'ETHUSD']
+
+excepciones = ['LUNAUSD']
 
 def obtener_todos_los_tickers():
     # Esta función debería devolver una lista de todos los tickers de criptoactivos disponibles.
     # Aquí se usa un ejemplo estático, pero en un caso real, se debería obtener dinámicamente.
-    return ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD', 'XLMUSD', 'TRXUSD', 'DOTUSD', 'ADAUSD', 'DOGEUSD']
+    return ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD', 'XLMUSD', 'TRXUSD', 'DOTUSD']
 
 def calcular_boost(precos_anteriores, precos_novos):
     todos_los_tickers = obtener_todos_los_tickers()
