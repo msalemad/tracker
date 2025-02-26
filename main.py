@@ -12,23 +12,29 @@ def calcular_variacao_percentual(preco_antigo, preco_novo):
         return 0
     return ((preco_novo - preco_antigo) / preco_antigo) * 100
 
-# Definir los tickers de las criptomonedas
-cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD', 'XLMUSD', 'TRXUSD']
+# Definir los tickers de las criptomonedas a monitorar
+cryptos = ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD', 'XLMUSD', 'TRXUSD', 'DOTUSD']
 
 # Definir los tickers de las criptomonedas a excluir de BoostUP y BoostDOWN
 # Ejemplo: excepciones = ['BTCUSD', 'ETHUSD']
 excepciones = ['BTCUSD', 'ETHUSD']
 
+def obtener_todos_los_tickers():
+    # Esta función debería devolver una lista de todos los tickers de criptoactivos disponibles.
+    # Aquí se usa un ejemplo estático, pero en un caso real, se debería obtener dinámicamente.
+    return ['BTCUSD', 'SOLUSD', 'XRPUSD', 'BNBUSD', 'ETHUSD', 'XLMUSD', 'TRXUSD', 'DOTUSD', 'ADAUSD', 'DOGEUSD']
+
 def calcular_boost(precos_anteriores, precos_novos):
+    todos_los_tickers = obtener_todos_los_tickers()
     maior_subida = {"ticker": None, "variacao": -float('inf'), "preco": 0}
     maior_baixa = {"ticker": None, "variacao": float('inf'), "preco": 0}
     
-    for crypto in precos_novos:
+    for crypto in todos_los_tickers:
         if crypto in excepciones:
             continue  # Saltar los tickers en la lista de excepciones
         
-        preco_antigo, _ = precos_anteriores[crypto]
-        preco_novo, _ = precos_novos[crypto]
+        preco_antigo, _ = precos_anteriores.get(crypto, (0, 0))
+        preco_novo, _ = precos_novos.get(crypto, (0, 0))
         variacao_preco = calcular_variacao_percentual(preco_antigo, preco_novo)
         
         if variacao_preco > maior_subida["variacao"]:
@@ -55,7 +61,7 @@ def inicializar_datos_historicos(filepath):
         wb = Workbook()
         ws = wb.active
         ws.title = "Datos Historicos"
-        ws.append(["Fecha/Hora"] + cryptos)
+        ws.append(["Fecha/Hora", "BoostUP", "BoostDOWN"] + cryptos)
         wb.save(filepath)
     else:
         wb = openpyxl.load_workbook(filepath)
@@ -66,11 +72,11 @@ def inicializar_datos_historicos(filepath):
                 ws.cell(row=1, column=ws.max_column + 1, value=crypto)
         wb.save(filepath)
 
-def actualizar_datos_historicos(filepath, datos):
+def actualizar_datos_historicos(filepath, datos, boost_up, boost_down):
     wb = openpyxl.load_workbook(filepath)
     ws = wb.active
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    new_row = [current_time] + [datos.get(crypto, (None,))[0] for crypto in cryptos]
+    new_row = [current_time, f"{boost_up['ticker']} {boost_up['preco']:.2f} ({boost_up['variacao']:+.2f}%)", f"{boost_down['ticker']} {boost_down['preco']:.2f} ({boost_down['variacao']:+.2f}%)"] + [datos.get(crypto, (None,))[0] for crypto in cryptos]
     ws.append(new_row)
     wb.save(filepath)
 
@@ -129,7 +135,7 @@ def main(stdscr):
 
             # Actualizar datos históricos
             datos_historicos = {crypto: (precos_novos[crypto][0], calcular_variacao_percentual(precos_anteriores[crypto][0], precos_novos[crypto][0])) for crypto in cryptos}
-            actualizar_datos_historicos(datos_historicos_filepath, datos_historicos)
+            actualizar_datos_historicos(datos_historicos_filepath, datos_historicos, boost_up, boost_down)
 
             if stdscr.getch() != -1:
                 break
